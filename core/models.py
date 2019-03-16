@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-# from django.utils.text import slugify
+from django.utils.text import slugify
 
 class Book(models.Model):
     """A typical class defining a model, derived from the Model class."""
@@ -27,6 +27,23 @@ class Book(models.Model):
         """String for representing the string representation of book object (in Admin site etc.)."""
         return self.title
 
+    def set_slug(self):
+        # If the slug is already set, stop here.
+        if self.slug:
+            return
+
+        base_slug = slugify(self.title)
+        slug = base_slug
+        n = 0
+
+        # while we can find a record already in the DB with the slug
+        # we're trying to use
+        while Event.objects.filter(slug=slug).count():
+            n += 1
+            slug = base_slug + "-" + str(n)
+
+        self.slug = slug    
+
 
 class Author(models.Model):    
     name = models.CharField(max_length=200)
@@ -34,3 +51,9 @@ class Author(models.Model):
     def __str__(self):
         """String for representing the string representation of book object (in Admin site etc.)."""
         return self.name
+
+    def get_absolute_url(self):
+        """Returns the url to access a particular instance of the model."""
+        return reverse('model-detail-view', args=[str(self.id)])
+
+

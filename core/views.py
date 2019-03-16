@@ -12,3 +12,7 @@ def index(request):
     }    
 
     return render(request, 'core/index.html', context=context)
+
+def book_detail_view(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    return render(request, "core/book_detail.html", {"event": event})
