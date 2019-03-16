@@ -30,3 +30,7 @@ class Book(models.Model):
 
 class Author(models.Model):    
     name = models.CharField(max_length=200)
+
+    def __str__(self):
+        """String for representing the string representation of book object (in Admin site etc.)."""
+        return self.name
