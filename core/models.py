@@ -10,7 +10,7 @@ class Book(models.Model):
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
     description = models.TextField(max_length=1000, help_text='Enter a brief description of the book')
     url_name = models.URLField(max_length=200)
-    # slugs = models.SlugField()
+    slug = models.SlugField(unique=True)
     created_at = models.DateField(auto_now_add=True)
     
 
@@ -27,6 +27,10 @@ class Book(models.Model):
         """String for representing the string representation of book object (in Admin site etc.)."""
         return self.title
 
+    def save(self, *args, **kwargs):
+        self.set_slug()
+        super().save(*args, **kwargs)    
+
     def set_slug(self):
         # If the slug is already set, stop here.
         if self.slug:
@@ -38,7 +42,7 @@ class Book(models.Model):
 
         # while we can find a record already in the DB with the slug
         # we're trying to use
-        while Event.objects.filter(slug=slug).count():
+        while Book.objects.filter(slug=slug).count():
             n += 1
             slug = base_slug + "-" + str(n)
 
@@ -55,5 +59,3 @@ class Author(models.Model):
     def get_absolute_url(self):
         """Returns the url to access a particular instance of the model."""
         return reverse('model-detail-view', args=[str(self.id)])
-
-
